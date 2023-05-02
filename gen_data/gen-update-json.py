@@ -14,24 +14,19 @@ def update_data_json(file_path: str) -> None:
     file_info = strip_info(file_path)
     json_data = json.load(open(f"{DISTRO_DATA_JSON}", 'r'))
     
-    try:
-        json_data[file_info[0]]
-        json_data[file_info[0]][file_info[2]]
-    except KeyError:
-        json_data[file_info[0]] = { }
-        json_data[file_info[0]][file_info[2]] = { }
+    json_data = utils.resolv_data(json_data, file_info[0], file_info[1], [file_info[2]])
     
+    rel_url = get_release_url(RELEASE_TAG, file_info[3])
+    rel_sha = utils.Popen( ["sha256sum", f"{file_path}"] ).split()[0]
     
-    url = get_release_url(RELEASE_TAG, file_info[3])
-    sha = utils.Popen( ["sha256sum", f"{file_path}"] ).split()[0]
-    
-    
-    json_data[file_info[0]][file_info[2]][file_info[1]] = {
-        "name": f"udroid-{file_info[0]}-{file_info[1]}",
-        "friendlyName": f"{file_info[0]} {file_info[1]}",
-        "url": url,
-        "sha": sha
-    }
+    json_data[file_info[0]]  \
+         [file_info[1]]  \
+         [f"{file_info[2]}url"] = rel_url
+         
+    # update sha
+    json_data[file_info[0]] \
+         [file_info[1]] \
+         [f"{file_info[2]}sha"] = rel_sha
     
     data_json = open(f"{DISTRO_DATA_JSON}", 'w')
     json.dump(json_data, data_json, indent=4)
