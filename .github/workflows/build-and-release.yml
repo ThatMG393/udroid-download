@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELEASE_TOKEN }}
       - name: 📥 Download All Tarballs
         uses: actions/download-artifact@v3
 
@@ -85,7 +85,7 @@ jobs:
       - name: ⬆️ Upload Suite Tarballs
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN  }}
+          token: ${{ secrets.RELEASE_TOKEN  }}
           tag: ${{ env.VERSIONTAG }}
           name: ${{ env.VERSIONTAG }}
           bodyFile: release.md
