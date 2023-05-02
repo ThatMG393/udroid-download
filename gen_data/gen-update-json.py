@@ -12,7 +12,7 @@ DISTRO_DATA_JSON = f"{GIT_ROOT}/distro-data.json"
 
 def update_data_json(file_path: str) -> None:
     file_info = strip_info(file_path)
-    json_data = json.load(open(f"{DISTRO_DATA_JSON}.json", 'r'))
+    json_data = json.load(open(f"{DISTRO_DATA_JSON}", 'r'))
     
     try:
         json_data[file_info[0]]
@@ -33,7 +33,7 @@ def update_data_json(file_path: str) -> None:
         "sha": sha
     }
     
-    data_json = open(f"{DISTRO_DATA_JSON}.json", 'w')
+    data_json = open(f"{DISTRO_DATA_JSON}", 'w')
     json.dump(json_data, data_json, indent=4)
     
 def strip_info(file_path: str) -> list:
@@ -68,4 +68,4 @@ if __name__ == '__main__':
     RELEASE_TAG = options.release_tag
     for file_path in utils.getfilesR(DIR):
         if file_path.endswith(".tar.gz"):
-            update_data_json1(file_path)
+            update_data_json(file_path)
