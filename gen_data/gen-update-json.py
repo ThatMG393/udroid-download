@@ -11,25 +11,30 @@ VERBOSE = False
 DISTRO_DATA_JSON = f"{GIT_ROOT}/distro-data.json"
 
 def update_data_json(file_path: str) -> None:
-    data = strip_info(file_path)
-    jdata = json.load(open(DISTRO_DATA_JSON, 'r'))
+    file_info = strip_info(file_path)
+    json_data = json.load(open(f"{DISTRO_DATA_JSON}.json", 'r'))
     
-    # resolv data
-    jdata = utils.resolv_data(jdata, data[0], data[1], [data[2]])
+    try:
+        json_data[file_info[0]]
+        json_data[file_info[0]][file_info[2]]
+    except KeyError:
+        json_data[file_info[0]] = { }
+        json_data[file_info[0]][file_info[2]] = { }
     
-    # update url
-    jdata[data[0]]  \
-         [data[1]]  \
-         [f"{data[2]}url"] = get_release_url(RELEASE_TAG, data[3])
     
-    # update sha
-    jdata[data[0]] \
-         [data[1]] \
-         [f"{data[2]}sha"] = utils.Popen( ["sha256sum", f"{file_path}"] ).split()[0]
+    url = get_release_url(RELEASE_TAG, file_info[3])
+    sha = utils.Popen( ["sha256sum", f"{file_path}"] ).split()[0]
     
-    # update DISTRO_DATA_JSON
-    file = open(DISTRO_DATA_JSON, 'w')
-    json.dump(jdata, file, indent=4)
+    
+    json_data[file_info[0]][file_info[2]][file_info[1]] = {
+        "name": f"udroid-{file_info[0]}-{file_info[1]}",
+        "friendlyName": f"{file_info[0]} {file_info[1]}",
+        "url": url,
+        "sha": sha
+    }
+    
+    data_json = open(f"{DISTRO_DATA_JSON}.json", 'w')
+    json.dump(json_data, data_json, indent=4)
     
 def strip_info(file_path: str) -> list:
     basename = os.path.basename(file_path)
@@ -63,4 +68,4 @@ if __name__ == '__main__':
     RELEASE_TAG = options.release_tag
     for file_path in utils.getfilesR(DIR):
         if file_path.endswith(".tar.gz"):
-            update_data_json(file_path)
+            update_data_json1(file_path)
