@@ -17,9 +17,9 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          fetch-depth: 1
       - name: Generate Matrix JSON
         id: set-matrix
         run: echo "matrix=$( python3 gen_data/gen-suite-matrix.py )" >> $GITHUB_OUTPUT
@@ -33,8 +33,9 @@ jobs:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
+          fetch-depth: 1
           submodules: recursive
       - uses: docker/setup-qemu-action@v2
       - name: ⤵️ Install Dependencies
@@ -46,7 +47,7 @@ jobs:
         run: sudo bash build.sh -s ${{ matrix.suite }} -v ${{ matrix.variant }} -a ${{ matrix.architecture }}
 
       - name: ⬆️ Upload Tarballs
-        uses: actions/upload-artifact@v4.5.0
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.suite }}-${{ matrix.variant }}-${{ matrix.architecture }}-tarballs
           path: fs-cook/out/${{ matrix.suite }}-${{ matrix.variant }}-**.tar.gz
@@ -57,11 +58,12 @@ jobs:
     needs: suite-build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
       - name: 📥 Download All Tarballs
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4
 
       - name: 🏷 Generate Release Tag
         run: |
@@ -102,7 +104,7 @@ jobs:
         run: sudo python3 gen_data/gen-update-json.py --release-tag ${{ env.VERSIONTAG }}
 
       - name: ⚙️ Run git pull
-        run: git pull -v
+        run: git pull --depth 1 -v
 
       - name: ⚙️ Update distro-data.json
         uses: stefanzweifel/git-auto-commit-action@v4
